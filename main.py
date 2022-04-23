@@ -1,7 +1,6 @@
 import math
-
-from bokeh.palettes import Spectral10, Dark2
-from bokeh.plotting import figure, output_file, show
+from bokeh.palettes import Dark2
+from bokeh.plotting import show
 import pandas as pd
 from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.plotting import figure
@@ -15,7 +14,6 @@ req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
 webpage = urlopen(req).read()
 soup = BeautifulSoup(webpage, "html.parser")
 
-# df = pd.DataFrame(columns=['title', 'location', 'size', 'pricePerSqft', 'date', 'totalPrice'])
 df = pd.DataFrame({'title': pd.Series(dtype='str'),
                    'location': pd.Series(dtype='str'),
                    'size': pd.Series(dtype='int'),
@@ -51,9 +49,6 @@ for x in soup.find_all('div', {'class': 'right-block row-cxt'}):
         totalPrice = y.text.strip().replace(',', '').replace('$', '').strip()
         print('price', totalPrice)
 
-    # df.append({'title': title, 'location': location
-    #               , 'size': size, 'pricePerSqft': pricePerSqft, 'date': date, 'totalPrice': totalPrice},
-    #           ignore_index=True)
     df.loc[len(df.index)] = [title, location, size, pricePerSqft, date, totalPrice]
 
 print(df)
@@ -69,18 +64,15 @@ df['level'] = df['title'].apply(lambda x: x.split('_')[2])
 global_source = ColumnDataSource(pd.DataFrame())
 global_source.data = ColumnDataSource.from_df(df)
 
-graph = figure(title='prices chart', width=1000, x_axis_type="datetime")
-graph.xaxis.major_label_orientation = math.pi / 4
-graph.grid.grid_line_alpha = 0.3
-graph.add_tools(HoverTool(tooltips=[('date', '@date{%Y-%m-%d}'), ('pricePerSqft', '@pricePerSqft'),
-                                    ('level', '@level')],
-                          formatters={'@date': 'datetime'}, mode='mouse'))
-# graph.scatter(source=global_source)
+p = figure(title='prices chart', width=1000, x_axis_type="datetime")
+p.xaxis.major_label_orientation = math.pi / 4
+p.grid.grid_line_alpha = 0.3
+p.add_tools(HoverTool(tooltips=[('date', '@date{%Y-%m-%d}'), ('pricePerSqft', '@pricePerSqft'),
+                                ('level', '@level')], formatters={'@date': 'datetime'}, mode='mouse'))
 pal = Dark2[3]
-graph.circle(x='date', y='pricePerSqft', source=global_source, size=15, legend='level',
-             fill_color=factor_cmap('level', palette=pal, factors=df['level'].unique()))
-graph.legend.label_text_font_size = '20pt'
-# graph.legend.location = "top_left"
+p.circle(x='date', y='pricePerSqft', source=global_source, size=15, legend='level',
+         fill_color=factor_cmap('level', palette=pal, factors=df['level'].unique()))
+p.legend.label_text_font_size = '20pt'
 
 print(df)
-show(graph)
+show(p)
