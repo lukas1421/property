@@ -1,3 +1,4 @@
+import pandas as pd
 from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 
@@ -6,55 +7,50 @@ req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
 webpage = urlopen(req).read()
 soup = BeautifulSoup(webpage, "html.parser")
 
-# for x in soup.find_all('div',{'class':'right-block row-cxt'}):
-#     for y in x.find_all('span'):
-#         print('y is ', y)
-#
-# for x in soup.find_all('div',{'class':'right-block row-cxt'}):
-#     print('x-----------------')
-#     for y in x.find_all('span'):
-#         if(y.text=='實'):
-#             print('next', '1', y.findNextSibling().text,'3', y.find_next_sibling().text)
-###
-# for x in soup.find_all('div',{'class':'right-block row-cxt'}):
-#     print('x-----------------')
-#     print(x)
-
+# df = pd.DataFrame(columns=['title', 'location', 'size', 'pricePerSqft', 'date', 'totalPrice'])
+df = pd.DataFrame({'title': pd.Series(dtype='str'),
+                   'location': pd.Series(dtype='str'),
+                   'size': pd.Series(dtype='int'),
+                   'pricePerSqft': pd.Series(dtype='int'),
+                   'date': pd.Series(dtype='str'),
+                   'totalPrice': pd.Series(dtype='int')})
 ##
 for x in soup.find_all('div', {'class': 'right-block row-cxt'}):
     print('x-----------------')
 
     for y in x.find_all('div', {'class': 'title'}):
-        print('title', y.text.strip())
+        title = y.text.strip().replace(' ', '_')
+        print('title', title)
 
     for y in x.find_all('div', {'class': 'col-detail'}):
-        print('detail', y.text.strip())
-
-    # for y in x.find_all('div', {'class': 'num'}):
-    #     print('num', y.text.strip())
+        location = y.text.strip().split()[0]
+        print('location', location)
 
     y = x.find('div', {'class': 'num'})
     z = y.find('span', {'class': 'hidden-xs-only'})
     z1 = y.find('div', {'class': 'area-price'})
     z2 = z1.find('span')
-    print('z', z.text.strip())
-    print('z2', z2.text.strip().split()[1])
-
-    # for y in x.find_all('div', {'class': 'num'}):
-    #     # print('y', y)
-    #     print('find first', y.find('span', {'class': 'hidden-xs-only'}))
-    #     # for z in y.find_all('span', {'class': 'hidden-xs-only'}):
-    #     #     # print('num', z.text.strip())
-    #     #     print('num', z)
-    #
-    #     for z in y.find_all('div', {'class': 'area-price'}):
-    #         print('area price', z.text.strip())
-
-    # for y in x.find_all('div', {'class': 'area-price'}):
-    #     print('area price', y.text.strip())
+    size = z.text.strip().split()[0]
+    print('size', size)
+    pricePerSqft = z2.text.strip().split()[1].replace('$', '')
+    print('pricePerSqft', pricePerSqft)
 
     for y in x.find_all('div', {'class': 'date'}):
-        print('date', y.text.strip())
+        date = y.text.strip()
+        print('date', date)
 
     for y in x.find_all('div', {'class': 'price'}):
-        print('price', y.text.strip())
+        totalPrice = y.text.strip().replace(',', '').replace('$', '').strip()
+        print('price', totalPrice)
+
+    # df.append({'title': title, 'location': location
+    #               , 'size': size, 'pricePerSqft': pricePerSqft, 'date': date, 'totalPrice': totalPrice},
+    #           ignore_index=True)
+    df.loc[len(df.index)] = [title, location, size, pricePerSqft, date, totalPrice]
+
+print(df)
+df = df.set_index('date')
+df.index = pd.to_datetime(df.index)
+df = df.sort_index()
+df['10ma'] = df['pricePerSqft'].rolling(10).mean()
+df['5ma'] = df['pricePerSqft'].rolling(5).mean()
