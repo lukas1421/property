@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 
 pd.set_option('display.expand_frame_repr', False)
-url = 'https://hk.centanet.com/findproperty/list/transaction?q=e3CSEC7eUPrFVi8Vi6pg'
+url = 'https://hk.centanet.com/findproperty/list/transaction?q=Ix4PngSm9EiCRDX4dfvlA'
 req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
 webpage = urlopen(req).read()
 soup = BeautifulSoup(webpage, "html.parser")
@@ -70,7 +70,7 @@ p.grid.grid_line_alpha = 0.3
 p.add_tools(HoverTool(tooltips=[('date', '@date{%Y-%m-%d}'), ('pricePerSqft', '@pricePerSqft'),
                                 ('level', '@level')], formatters={'@date': 'datetime'}, mode='mouse'))
 pal = Dark2[3]
-p.circle(x='date', y='pricePerSqft', source=global_source, size=15, legend='level',
+p.circle(x='date', y='pricePerSqft', source=global_source, size=15, legend_group='level',
          fill_color=factor_cmap('level', palette=pal, factors=df['level'].unique()))
 p.legend.label_text_font_size = '20pt'
 
