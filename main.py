@@ -73,11 +73,14 @@ graph = figure(title='prices chart', width=1000, x_axis_type="datetime")
 graph.xaxis.major_label_orientation = math.pi / 4
 graph.grid.grid_line_alpha = 0.3
 graph.add_tools(HoverTool(tooltips=[('date', '@date{%Y-%m-%d}'), ('pricePerSqft', '@pricePerSqft'),
-                                    ('level','@level')],
+                                    ('level', '@level')],
                           formatters={'@date': 'datetime'}, mode='mouse'))
 # graph.scatter(source=global_source)
 pal = Dark2[3]
-graph.circle(x='date', y='pricePerSqft', source=global_source, size=10,
+graph.circle(x='date', y='pricePerSqft', source=global_source, size=15, legend='level',
              fill_color=factor_cmap('level', palette=pal, factors=df['level'].unique()))
+graph.legend.label_text_font_size = '20pt'
+# graph.legend.location = "top_left"
+
 print(df)
 show(graph)
