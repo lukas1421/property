@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 
 pd.set_option('display.expand_frame_repr', False)
-url = 'https://hk.centanet.com/findproperty/list/transaction?q=Ix4PngSm9EiCRDX4dfvlA'
+url = 'https://hk.centanet.com/findproperty/list/transaction?q=InIlswWlUaIElAQQLh5wg'
 req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
 webpage = urlopen(req).read()
 soup = BeautifulSoup(webpage, "html.parser")
@@ -75,4 +75,6 @@ p.circle(x='date', y='pricePerSqft', source=global_source, size=15, legend_group
 p.legend.label_text_font_size = '20pt'
 
 print(df)
+print('mean by pricePersqft:', df.groupby('level')['pricePerSqft'].mean())
+
 show(p)
