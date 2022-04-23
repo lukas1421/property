@@ -1,4 +1,8 @@
+import math
+from bokeh.plotting import figure, output_file, show
 import pandas as pd
+from bokeh.models import ColumnDataSource, HoverTool
+from bokeh.plotting import figure
 from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 
@@ -54,3 +58,16 @@ df.index = pd.to_datetime(df.index)
 df = df.sort_index()
 df['10ma'] = df['pricePerSqft'].rolling(10).mean()
 df['5ma'] = df['pricePerSqft'].rolling(5).mean()
+# df['date'] = df.index
+global_source = ColumnDataSource(pd.DataFrame())
+global_source.data = ColumnDataSource.from_df(df)
+
+graph = figure(title='prices chart', width=1000, x_axis_type="datetime")
+graph.xaxis.major_label_orientation = math.pi / 4
+graph.grid.grid_line_alpha = 0.3
+graph.add_tools(HoverTool(tooltips=[('date', '@date{%Y-%m-%d}'), ('pricePerSqft', '@pricePerSqft')],
+                          formatters={'@date': 'datetime'}, mode='vline'))
+# graph.scatter(source=global_source)
+graph.circle(x='date', y='pricePerSqft', source=global_source)
+print(df)
+show(graph)
